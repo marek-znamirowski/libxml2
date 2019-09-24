@@ -7,6 +7,10 @@
 #define IN_LIBXML
 #include "libxml.h"
 
+#if defined(YI_PORT_FILE_REQUIRED)
+#include <YiPort.h>
+#endif
+
 #include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H

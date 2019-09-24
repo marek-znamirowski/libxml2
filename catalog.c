@@ -15,6 +15,10 @@
 #define IN_LIBXML
 #include "libxml.h"
 
+#if defined(YI_PORT_FILE_REQUIRED)
+#include <YiPort.h>
+#endif
+
 #ifdef LIBXML_CATALOG_ENABLED
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>

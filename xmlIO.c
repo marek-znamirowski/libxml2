@@ -3713,7 +3713,7 @@ xmlParserGetDirectory(const char *filename) {
     char dir[1024];
     char *cur;
 
-#ifdef _WIN32_WCE  /* easy way by now ... wince does not have dirs! */
+#if defined(_WIN32_WCE) || defined(__ORBIS__)  /* easy way by now ... wince does not have dirs! */
     return NULL;
 #endif
 
