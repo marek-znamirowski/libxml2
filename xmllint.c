@@ -814,14 +814,13 @@ xmlShellReadline(char *prompt) {
  *									*
  ************************************************************************/
 
-static int myRead(void *f, char *buf, int len) {
-    return(fread(buf, 1, len, (FILE *) f));
+static int myRead(FILE *f, char * buf, int len) {
+    return(fread(buf, 1, len, f));
 }
-static int myClose(void *context) {
-    FILE *f = (FILE *) context;
-    if (f == stdin)
-        return(0);
-    return(fclose(f));
+static void myClose(FILE *f) {
+  if (f != stdin) {
+    fclose(f);
+  }
 }
 
 /************************************************************************
@@ -2071,52 +2070,51 @@ static void doXPathDump(xmlXPathObjectPtr cur) {
             int i;
             xmlNodePtr node;
 #ifdef LIBXML_OUTPUT_ENABLED
-            xmlOutputBufferPtr buf;
+            xmlSaveCtxtPtr ctxt;
 
             if ((cur->nodesetval == NULL) || (cur->nodesetval->nodeNr <= 0)) {
                 fprintf(stderr, "XPath set is empty\n");
                 progresult = XMLLINT_ERR_XPATH;
                 break;
             }
-            buf = xmlOutputBufferCreateFile(stdout, NULL);
-            if (buf == NULL) {
+            ctxt = xmlSaveToFd(1, NULL, 0);
+            if (ctxt == NULL) {
                 fprintf(stderr, "Out of memory for XPath\n");
                 progresult = XMLLINT_ERR_MEM;
                 return;
             }
             for (i = 0;i < cur->nodesetval->nodeNr;i++) {
                 node = cur->nodesetval->nodeTab[i];
-                xmlNodeDumpOutput(buf, node->doc, node, 0, 0, NULL);
-                xmlOutputBufferWrite(buf, 1, "\n");
+                xmlSaveTree(ctxt, node);
             }
-            xmlOutputBufferClose(buf);
+            xmlSaveClose(ctxt);
 #else
             printf("xpath returned %d nodes\n", cur->nodesetval->nodeNr);
 #endif
 	    break;
         }
         case XPATH_BOOLEAN:
-	    if (cur->boolval) printf("true\n");
-	    else printf("false\n");
+	    if (cur->boolval) printf("true");
+	    else printf("false");
 	    break;
         case XPATH_NUMBER:
 	    switch (xmlXPathIsInf(cur->floatval)) {
 	    case 1:
-		printf("Infinity\n");
+		printf("Infinity");
 		break;
 	    case -1:
-		printf("-Infinity\n");
+		printf("-Infinity");
 		break;
 	    default:
 		if (xmlXPathIsNaN(cur->floatval)) {
-		    printf("NaN\n");
+		    printf("NaN");
 		} else {
-		    printf("%0g\n", cur->floatval);
+		    printf("%0g", cur->floatval);
 		}
 	    }
 	    break;
         case XPATH_STRING:
-	    printf("%s\n", (const char *) cur->stringval);
+	    printf("%s", (const char *) cur->stringval);
 	    break;
         case XPATH_UNDEFINED:
 	    fprintf(stderr, "XPath Object is uninitialized\n");
@@ -2305,11 +2303,14 @@ static void parseAndPrintFile(char *filename, xmlParserCtxtPtr rectxt) {
 #endif
 		if (f != NULL) {
 		    if (rectxt == NULL)
-			doc = xmlReadIO(myRead, myClose, f, filename, NULL,
-                                        options);
+			doc = xmlReadIO((xmlInputReadCallback) myRead,
+					(xmlInputCloseCallback) myClose, f,
+					filename, NULL, options);
 		    else
-			doc = xmlCtxtReadIO(rectxt, myRead, myClose, f,
-					    filename, NULL, options);
+			doc = xmlCtxtReadIO(rectxt,
+			                (xmlInputReadCallback) myRead,
+					(xmlInputCloseCallback) myClose, f,
+					filename, NULL, options);
 		} else
 		    doc = NULL;
 	    }
@@ -3016,7 +3017,7 @@ static void usage(FILE *f, const char *name) {
     fprintf(f, "\t--repeat : repeat 100 times, for timing or profiling\n");
     fprintf(f, "\t--insert : ad-hoc test for valid insertions\n");
 #ifdef LIBXML_OUTPUT_ENABLED
-#ifdef LIBXML_ZLIB_ENABLED
+#ifdef HAVE_ZLIB_H
     fprintf(f, "\t--compress : turn on gzip compression of output\n");
 #endif
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -3296,7 +3297,7 @@ main(int argc, char **argv) {
 	}
 #endif
 #ifdef LIBXML_OUTPUT_ENABLED
-#ifdef LIBXML_ZLIB_ENABLED
+#ifdef HAVE_ZLIB_H
 	else if ((!strcmp(argv[i], "-compress")) ||
 	         (!strcmp(argv[i], "--compress"))) {
 	    compress++;

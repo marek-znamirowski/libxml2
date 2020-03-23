@@ -1261,10 +1261,8 @@ struct _xmlXIncludeMergeData {
  * Inplements the merge of one entity
  */
 static void
-xmlXIncludeMergeEntity(void *payload, void *vdata,
-	               const xmlChar *name ATTRIBUTE_UNUSED) {
-    xmlEntityPtr ent = (xmlEntityPtr) payload;
-    xmlXIncludeMergeDataPtr data = (xmlXIncludeMergeDataPtr) vdata;
+xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeDataPtr data,
+	               xmlChar *name ATTRIBUTE_UNUSED) {
     xmlEntityPtr ret, prev;
     xmlDocPtr doc;
     xmlXIncludeCtxtPtr ctxt;
@@ -1369,7 +1367,7 @@ xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 	data.doc = doc;
 
 	xmlHashScan((xmlHashTablePtr) source->entities,
-		    xmlXIncludeMergeEntity, &data);
+		    (xmlHashScanner) xmlXIncludeMergeEntity, &data);
     }
     source = from->extSubset;
     if ((source != NULL) && (source->entities != NULL)) {
@@ -1384,7 +1382,7 @@ xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 	if ((!xmlStrEqual(target->ExternalID, source->ExternalID)) &&
 	    (!xmlStrEqual(target->SystemID, source->SystemID))) {
 	    xmlHashScan((xmlHashTablePtr) source->entities,
-			xmlXIncludeMergeEntity, &data);
+			(xmlHashScanner) xmlXIncludeMergeEntity, &data);
 	}
     }
     return(0);

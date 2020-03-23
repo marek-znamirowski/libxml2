@@ -467,6 +467,8 @@ xmlXPtrNewRangeNodePoint(xmlNodePtr start, xmlXPathObjectPtr end) {
 	return(NULL);
     if (end == NULL)
 	return(NULL);
+    if (start->type != XPATH_POINT)
+	return(NULL);
     if (end->type != XPATH_POINT)
 	return(NULL);
 

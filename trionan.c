@@ -48,7 +48,6 @@
 #include <limits.h>
 #include <float.h>
 #if defined(TRIO_PLATFORM_UNIX)
-# include <signal.h>
 #endif
 #if defined(TRIO_COMPILER_DECC)
 #  if defined(__linux__)

@@ -619,11 +619,6 @@ xmlSchemaInitTypes(void)
     xmlSchemaTypesInitialized = 1;
 }
 
-static void
-xmlSchemaFreeTypeEntry(void *type, const xmlChar *name ATTRIBUTE_UNUSED) {
-    xmlSchemaFreeType((xmlSchemaTypePtr) type);
-}
-
 /**
  * xmlSchemaCleanupTypes:
  *
@@ -651,7 +646,7 @@ xmlSchemaCleanupTypes(void) {
 	xmlFree((xmlSchemaParticlePtr) particle);
 	xmlSchemaTypeAnyTypeDef->subtypes = NULL;
     }
-    xmlHashFree(xmlSchemaTypesBank, xmlSchemaFreeTypeEntry);
+    xmlHashFree(xmlSchemaTypesBank, (xmlHashDeallocator) xmlSchemaFreeType);
     xmlSchemaTypesInitialized = 0;
 }
 
