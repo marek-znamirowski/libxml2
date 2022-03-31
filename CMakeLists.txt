@@ -47,6 +47,10 @@ add_library(
     xzlib.c
 )
 
+if(MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 target_compile_definitions(libxml2 PRIVATE _REENTRANT HAVE_CONFIG_H)
 
 include(CheckLibraryExists)
