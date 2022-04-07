@@ -126,7 +126,7 @@ math(EXPR LIBXML_VERSION_NUMBER "${a} * 10000 + ${b} * 100 + ${c}")
 set(LIBXML_VERSION_EXTRA "")
 
 set(WITH_C14N 1)
-set(WITH_CATALOG 1)
+set(WITH_CATALOG 0)
 set(WITH_DEBUG 1)
 set(WITH_DOCB 1)
 set(WITH_FTP 0)
